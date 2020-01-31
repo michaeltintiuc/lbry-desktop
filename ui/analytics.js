@@ -49,7 +49,7 @@ let analyticsEnabled: boolean = isProduction;
 
 const analytics: Analytics = {
   error: message => {
-    if (analyticsEnabled && isProduction) {
+    if (analyticsEnabled || devInternalApis) {
       Lbryio.call('event', 'desktop_error', { error_message: message });
     }
   },
@@ -79,7 +79,7 @@ const analytics: Analytics = {
   },
   apiLogView: (uri, outpoint, claimId, timeToStart) => {
     return new Promise((resolve, reject) => {
-      if (analyticsEnabled && (isProduction || devInternalApis)) {
+      if (analyticsEnabled || devInternalApis) {
         const params: {
           uri: string,
           outpoint: string,
@@ -103,12 +103,12 @@ const analytics: Analytics = {
     });
   },
   apiLogSearch: () => {
-    if (analyticsEnabled && isProduction) {
+    if (analyticsEnabled || devInternalApis) {
       Lbryio.call('event', 'search');
     }
   },
   apiLogPublish: (claimResult: ChannelClaim | StreamClaim) => {
-    if (analyticsEnabled && isProduction) {
+    if (analyticsEnabled || devInternalApis) {
       const { permanent_url: uri, claim_id: claimId, txid, nout, signing_channel: signingChannel } = claimResult;
       let channelClaimId;
       if (signingChannel) {
@@ -124,7 +124,7 @@ const analytics: Analytics = {
   },
 
   apiSearchFeedback: (query, vote) => {
-    if (isProduction) {
+    if (analyticsEnabled || devInternalApis) {
       // We don't need to worry about analytics enabled here because users manually click on the button to provide feedback
       Lbryio.call('feedback', 'search', { query, vote });
     }
@@ -163,7 +163,7 @@ const analytics: Analytics = {
 };
 
 function sendGaEvent(category, action, label, value) {
-  if (analyticsEnabled && isProduction) {
+  if (analyticsEnabled) {
     ReactGA.event(
       {
         category,
@@ -177,7 +177,7 @@ function sendGaEvent(category, action, label, value) {
 }
 
 function sendGaTimingEvent(category: string, action: string, timeInMs: number, label?: string) {
-  if (analyticsEnabled && isProduction) {
+  if (analyticsEnabled) {
     ReactGA.timing(
       {
         category,
